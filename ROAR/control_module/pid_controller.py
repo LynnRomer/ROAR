@@ -34,13 +34,15 @@ class PIDController(Controller):
     def run_in_series(self, next_waypoint: Transform, **kwargs) -> VehicleControl:
         throttle = self.long_pid_controller.run_in_series(next_waypoint=next_waypoint,
                                                           target_speed=kwargs.get("target_speed", self.max_speed))
+        
         steering = self.lat_pid_controller.run_in_series(next_waypoint=next_waypoint)
+    
         return VehicleControl(throttle=throttle, steering=steering)
 
     @staticmethod
     def find_k_values(vehicle: Vehicle, config: dict) -> np.array:
         current_speed = Vehicle.get_speed(vehicle=vehicle)
-        k_p, k_d, k_i = 1, 0, 0
+        k_p, k_d, k_i = 1.0, 0.8, 0.8
         for speed_upper_bound, kvalues in config.items():
             speed_upper_bound = float(speed_upper_bound)
             if current_speed < speed_upper_bound:
